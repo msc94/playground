@@ -1,0 +1,17 @@
+{
+    "send_inactive": true,
+    "use_db": false,
+    "main_page": {
+        "scrap_num_pages": 1,
+        "send_on_temp": 500,
+        "look_for": [
+            "mx518"
+        ]    
+    },
+    "group": {
+        "names": [
+            "mx518"
+        ],
+        "send_on_temp": 500
+    }
+}
