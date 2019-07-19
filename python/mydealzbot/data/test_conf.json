@@ -1,10 +1,10 @@
 {
     "send_only_active": false,
-    "use_db": true,
+    "use_db": false,
 
     "index_page": {
         "scrap_num_pages": 5,
-        "send_on_temp": 500
+        "send_on_temp": 700
     },
 
     "look_for": {

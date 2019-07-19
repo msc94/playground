@@ -1,52 +1,30 @@
 import logging
 import sys
 
-import config
-import mydealz_page_scraper as pagescraper
-from mydealz_article import Article, ArticleState
-from mydealz_thread_db import MydealzThreadDatabase
-from mydealz_message import MydealzMessage, MydealzMessageData
-
-from telegram_bot import TelegramBot
-
-def scrape_main_pages(conf, thread_db=None):
-    num_pages = conf.value("main_page.scrap_num_pages")
-    logging.info(f"Scraping first {num_pages} of mydealz")
-    articles = pagescraper.scrape_first_mydealz_pages(num_pages)
-
-    # Filter on temp
-    articles = [a for a in articles if a.temp > conf.value("main_page.send_on_temp")]
-
-    # Filter inactive
-    if not conf.value("send_inactive"):
-        articles = [a for a in articles if a.status == ArticleState.ACTIVE]
-
-    # Filter already sent articles
-    if thread_db is not None:
-        articles = [a for a in articles if not thread_db.has_article(a.id)]
-
-    return articles
-
+import mydealz_config
+import telegram_bot
+import mydealz_thread_db
+import mydealz_main
 
 def main():
     logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
-    conf = config.Config("data/mydealz_conf.json")
-    use_db = conf.value("use_db")
-    thread_db = MydealzThreadDatabase() if use_db else None
+    config = mydealz_config.Config("data/mydealz_conf.json")
+    thread_db = mydealz_thread_db.MydealzThreadDatabase() \
+        if config.value("use_db") else None
 
-    data = MydealzMessageData()
-    data.main_page_articles = scrape_main_pages(conf, thread_db)
+    scrape_main = mydealz_main.MydealzScraperMain(config)
+    articles_index = scrape_main.scrape_index()
 
-    msg = MydealzMessage(data)
-    msgtext = msg.craft_message()
-    print(msgtext)
+    filter_main = mydealz_main.MydealzFilterMain(config, thread_db)
+    filtered_index = filter_main.filter_index_articles(articles_index)
 
-    if use_db:
-        thread_db.insert_articles([a.id for a in data.main_page_articles])
+    message = mydealz_main.MydealzMessage()
+    message.add_index(filtered_index["index"])
+    message.add_look_for(filtered_index["look_for"])
+    message.send_message()
 
-    telegrambot = TelegramBot()
-    telegrambot.send_message(msgtext)
+    thread_db.insert_articles([a.id for a in filtered_index["index"]])
 
 if __name__ == "__main__":
     main()
