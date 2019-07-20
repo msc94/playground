@@ -15,16 +15,23 @@ def main():
 
     scrape_main = mydealz_main.MydealzScraperMain(config)
     articles_index = scrape_main.scrape_index()
+    group_articles = scrape_main.scrape_groups()
 
     filter_main = mydealz_main.MydealzFilterMain(config, thread_db)
     filtered_index = filter_main.filter_index_articles(articles_index)
+    filtered_groups = filter_main.filter_group_articles(group_articles)
 
     message = mydealz_main.MydealzMessage()
     message.add_index(filtered_index["index"])
     message.add_look_for(filtered_index["look_for"])
+    message.add_groups(filtered_groups)
     message.send_message()
 
-    thread_db.insert_articles([a.id for a in filtered_index["index"]])
+    sent_articles = filtered_index["index"] + filtered_index["look_for"]
+    for g in filtered_groups:
+        sent_articles.extend(g.articles)
+
+    thread_db.insert_articles([a.id for a in sent_articles])
 
 if __name__ == "__main__":
     main()

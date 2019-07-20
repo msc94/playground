@@ -1,23 +1,27 @@
 {
-    "send_only_active": false,
     "use_db": true,
 
     "index_page": {
         "scrap_num_pages": 5,
-        "send_on_temp": 500
+        "send_on_temp": 500,
+        "send_only_active": true
     },
 
     "look_for": {
-        "articles": [
+        "keywords": [
             "mx518"
         ],
-        "send_on_temp": 200
+        "send_on_temp": 200,
+        "send_only_active": true
     },
 
     "groups": {
         "names": [
-            "brille"
+            "brillen",
+            "grafikkarten"
         ],
-        "send_on_temp": 200
+        "scrape_num_pages": 2,
+        "send_on_temp": 200,
+        "send_only_active": true
     }
 }

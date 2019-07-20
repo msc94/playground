@@ -5,10 +5,12 @@ import mydealz_article
 import mydealz_thread_db
 import telegram_bot
 
+
 class MydealzScraperResult(object):
     def __init__(self):
         pass
-    
+
+
 def _string_contains_any_keyword(string, keywords):
     lower_string = string.lower()
 
@@ -19,35 +21,58 @@ def _string_contains_any_keyword(string, keywords):
 
     return False
 
+
 class MydealzFilterMain(object):
     def __init__(self, config, thread_db):
         self._config = config
         self._thread_db = thread_db
 
     def filter_index_articles(self, articles):
+        if articles is None:
+            return {"index": [],
+                    "look_for": []}
+
         index_articles = self._filter_articles(
             articles=articles,
             temp=self._config.value("index_page.send_on_temp"),
-            send_only_active=self._config.value("send_only_active"),
+            send_only_active=self._config.value("index_page.send_only_active"),
             keywords=None
         )
 
         look_for_articles = self._filter_articles(
             articles=articles,
             temp=self._config.value("look_for.send_on_temp"),
-            send_only_active=self._config.value("send_only_active"),
-            keywords=self._config.value("look_for.articles")
+            send_only_active=self._config.value("look_for.send_only_active"),
+            keywords=self._config.value("look_for.keywords")
         )
-        
-        return {"index": list(index_articles), 
-            "look_for": list(look_for_articles)}
+
+        return {"index": index_articles,
+                "look_for": look_for_articles}
+
+    def filter_group_articles(self, groups):
+        filtered_groups = []
+
+        for group in groups:
+            filtered_articles = self._filter_articles(
+                articles=group.articles,
+                temp=self._config.value("groups.send_on_temp"),
+                send_only_active=self._config.value("groups.send_only_active"),
+                keywords=None
+            )
+
+            filtered_group = mydealz_article.GroupArticles()
+            filtered_group.group_name = group.group_name
+            filtered_group.articles = filtered_articles
+            filtered_groups.append(filtered_group)
+
+        return filtered_groups
 
     def _filter_articles(self, articles, temp, send_only_active, keywords):
         articles = filter(lambda x: x.temp > temp, articles)
 
         # Filter inactive
         if send_only_active:
-            articles = filter(lambda x: x.status ==
+            articles = filter(lambda x: x.state ==
                               mydealz_article.ArticleState.ACTIVE, articles)
 
         # Filter already sent articles
@@ -60,7 +85,7 @@ class MydealzFilterMain(object):
             articles = filter(lambda x: _string_contains_any_keyword(
                 x.title, keywords), articles)
 
-        return articles
+        return list(articles)
 
 
 class MydealzScraperMain(object):
@@ -73,33 +98,83 @@ class MydealzScraperMain(object):
         return mydealz_page_scraper.scrape_first_mydealz_pages(num_pages)
 
     def scrape_groups(self):
-        pass
+        num_pages = self._config.value("groups.scrape_num_pages")
+        groups = []
+
+        for group in self._config.value("groups.names"):
+            group_articles = mydealz_article.GroupArticles()
+            group_articles.group_name = group
+            group_articles.articles = mydealz_page_scraper.scrape_group(
+                group, num_pages)
+            groups.append(group_articles)
+
+        return groups
 
 
 class MydealzMessage(object):
     def add_index(self, index):
         self._index = index
 
-    def add_look_for(self, groups):
+    def add_look_for(self, look_for):
+        self._look_for = look_for
+
+    def add_groups(self, groups):
         self._groups = groups
 
     def send_message(self):
-        msgtext = self._create_message()
-        print(msgtext)
+        messages = self._create_messages()
         telegrambot = telegram_bot.TelegramBot()
-        telegrambot.send_html(msgtext)
+        for msg in messages:
+            telegrambot.send_html(msg)
 
-    def _create_message(self):
-        str_list = []
+    def _create_messages(self):
+        messages = []
 
-        if self._index is not None:
-            logging.info("MessageData has main page data. Adding to message")
+        if self._index is not None and len(self._index) > 0:
+            logging.info("There is main page data. Adding to message")
 
-            str_list.append("<i>Main page results</i>")
+            str_list = []
+            str_list.append(f"-------------------------------------")
+            str_list.append("Ergebnisse Hauptseite:")
+            str_list.append(f"-------------------------------------")
             for a in self._index:
                 str_list.append(a.to_html())
-                # Safety measure...
-                if len(str_list) > 30:
-                    break
 
-        return "\r\n".join(str_list)
+            messages.append(
+                "\r\n".join(str_list[0:20])
+            )
+
+        if self._groups is not None:
+            logging.info("There is group data. Adding to message")
+
+            for g in self._groups:
+                if len(g.articles) == 0:
+                    continue
+
+                str_list = []
+                str_list.append(f"-------------------------------------")
+                str_list.append(f"Gruppe {g.group_name}:")
+                str_list.append(f"-------------------------------------")
+                for a in g.articles:
+                    str_list.append(a.to_html())
+                messages.append(
+                    "\r\n".join(str_list[0:20])
+                )
+
+
+
+        if self._look_for is not None and len(self._look_for) > 0:
+            logging.info("There is look for data. Adding to message")
+
+            str_list = []
+            str_list.append(f"-------------------------------------")
+            str_list.append("Gesuchte Ergebnisse:")
+            str_list.append(f"-------------------------------------")
+            for a in self._look_for:
+                str_list.append(a.to_html())
+
+            messages.append(
+                "\r\n".join(str_list[0:20])
+            )
+
+        return messages

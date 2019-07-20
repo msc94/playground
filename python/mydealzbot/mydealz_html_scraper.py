@@ -36,7 +36,12 @@ class MydealzHtmlScraper(object):
             raise RuntimeError("Erroring matching thread id regex")
 
         article.price = self._get_if_unique(price_elements, "?")
-        article.title = self._get_if_unique(title_elements, "?")
+
+        if len(title_elements) == 1:
+            article.title = self._strip_whitespace(title_elements[0].text)
+            article.url = title_elements[0].attrs["href"]
+        else:
+            article.title = article.url = "?"
 
         temp = self._get_if_unique(temp_elements, "?")
         article.temp = int(temp[:-1]) # Remove °

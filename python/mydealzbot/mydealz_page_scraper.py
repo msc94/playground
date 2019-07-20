@@ -19,14 +19,19 @@ def scrape_first_mydealz_pages(num):
         articles.extend(scrape_mydealz_main(i))
     return articles
 
-def scrape_group(name):
-    url = f"https://www.mydealz.de/gruppe/{name}"
+def scrape_group(name, num):
+    articles = []
 
-    logging.debug(f"Downloading url {url}")
-    html = re.get(url).content.decode("utf-8")
+    for i in range(1, num + 1):
+        url = f"https://www.mydealz.de/gruppe/{name}?page={i}"
 
-    scraper = MydealzHtmlScraper(html)
-    return scraper.get_articles()
+        logging.debug(f"Downloading url {url}")
+        html = re.get(url).content.decode("utf-8")
+
+        scraper = MydealzHtmlScraper(html)
+        articles.extend(scraper.get_articles())
+
+    return articles
 
 if __name__ == "__main__":
     logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
