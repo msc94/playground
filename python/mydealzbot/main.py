@@ -27,11 +27,12 @@ def main():
     message.add_groups(filtered_groups)
     message.send_message()
 
-    sent_articles = filtered_index["index"] + filtered_index["look_for"]
-    for g in filtered_groups:
-        sent_articles.extend(g.articles)
-
-    thread_db.insert_articles([a.id for a in sent_articles])
+    if thread_db is not None:
+        sent_articles = filtered_index["index"] + filtered_index["look_for"]
+        for g in filtered_groups:
+            sent_articles.extend(g.articles)
+        id_set = set([a.id for a in sent_articles])
+        thread_db.insert_articles(id_set)
 
 if __name__ == "__main__":
     main()

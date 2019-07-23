@@ -21,6 +21,7 @@ class MydealzThreadDatabase(object):
         )
 
     def insert_articles(self, ids):
+        logging.debug(f"Inserting ids {ids} into thread database")
         for id in ids:
             self._conn.execute(
                 r"""
@@ -31,6 +32,7 @@ class MydealzThreadDatabase(object):
         self._conn.commit()
 
     def has_article(self, id):
+        logging.debug(f"Checking if {id} is in database")
         return self._conn.execute(
             r"""
                 SELECT COUNT(*) FROM article WHERE id = ?

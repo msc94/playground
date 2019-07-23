@@ -18,7 +18,10 @@
     "groups": {
         "names": [
             "brillen",
-            "grafikkarten"
+            "grafikkarten",
+            "amd-ryzen",
+            "amd-radeon",
+            "office-programme"
         ],
         "scrape_num_pages": 2,
         "send_on_temp": 200,
