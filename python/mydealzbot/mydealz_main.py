@@ -1,4 +1,5 @@
 import logging
+import concurrent.futures
 
 import mydealz_html_scraper
 import mydealz_page_downloader
@@ -88,12 +89,21 @@ class MydealzFilterMain(object):
 
         return list(articles)
 
+def _scrape_group_multiprocessing(name):
+    page_downloader = mydealz_page_downloader.MydealzPageDownloader()
+    num_pages = 5
+    articles = []
+    for i in range(1, num_pages + 1):
+        page_html = page_downloader._fetch(url)
+        page_articles = mydealz_html_scraper.MydealzHtmlScraper(page_html).get_articles()
+        articles.extend(page_articles)
+    return articles
 
 class MydealzScraperMain(object):
     def __init__(self, config):
         self._config = config
-        self._page_downloader = mydealz_page_downloader.MydealzPageDownloader()
-
+        self._executor = concurrent.futures.ProcessPoolExecutor(10)
+        
     def scrape_index(self):
         articles = []
         num_pages = self._config.value("index_page.scrap_num_pages")
@@ -105,25 +115,21 @@ class MydealzScraperMain(object):
         return articles
 
     def scrape_groups(self):
-        groups = []
-
+        group_futures = []
         for group in self._config.value("groups.names"):
-            group_articles = mydealz_article.GroupArticles()
-            group_articles.group_name = group
-            group_articles.articles = self._scrape_group(group)
-            groups.append(group_articles)
+            future = executor.submit(_scrape_page_multiprocessing, group)
+            group_futures.append(future)
+            print(group_futures)
 
-        return groups
+        return [group_future.result() for group_future in group_futures]
+            
+            # group_articles = mydealz_article.GroupArticles()
+            # group_articles.group_name = group
+            # group_articles.articles = self._scrape_group(group)
+            # groups.append(group_articles)
 
     def _scrape_group(self, name):
-        num_pages = self._config.value("groups.scrape_num_pages")
-        articles = []
-        for i in range(1, num_pages + 1):
-            page_html = self._page_downloader.mydealz_group(name, i)
-            page_articles = mydealz_html_scraper.MydealzHtmlScraper(page_html).get_articles()
-            articles.extend(page_articles)
-        return articles
-
+        pass
 
 class MydealzMessage(object):
     def add_index(self, index):
