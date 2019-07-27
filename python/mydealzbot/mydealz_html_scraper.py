@@ -8,7 +8,6 @@ from mydealz_article import Article, ArticleState
 class MydealzHtmlScraper(object):
     def __init__(self, html):
         self._thread_id_re = re.compile("thread_([0-9]+)")
-        self._html = html
         self._bs = bs4.BeautifulSoup(html, "html.parser")
 
     def get_articles(self):

@@ -8,7 +8,6 @@ from mydealz_html_scraper import MydealzHtmlScraper
 
 class MydealzScraperTest(unittest.TestCase):
     def test_extract_articles(self):
-        cwd = os.getcwd()
         html = open("test_data/main.html", encoding="utf-8").read()
         scraper = MydealzHtmlScraper(html)
         articles = scraper.get_articles()
