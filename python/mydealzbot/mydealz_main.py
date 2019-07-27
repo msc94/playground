@@ -94,32 +94,32 @@ class MydealzScraperMain(object):
         self._config = config
         self._page_downloader = mydealz_page_downloader.MydealzPageDownloader()
 
-    async def scrape_index(self):
+    def scrape_index(self):
         articles = []
         num_pages = self._config.value("index_page.scrap_num_pages")
         logging.info(f"Scraping first {num_pages} of mydealz")
         for i in range(1, num_pages + 1):
-            page_html = await self._page_downloader.mydealz_index(i)
+            page_html = self._page_downloader.mydealz_index(i)
             page_articles = mydealz_html_scraper.MydealzHtmlScraper(page_html).get_articles()
             articles.extend(page_articles)
         return articles
 
-    async def scrape_groups(self):
+    def scrape_groups(self):
         groups = []
 
         for group in self._config.value("groups.names"):
             group_articles = mydealz_article.GroupArticles()
             group_articles.group_name = group
-            group_articles.articles = await self._scrape_group(group)
+            group_articles.articles = self._scrape_group(group)
             groups.append(group_articles)
 
         return groups
 
-    async def _scrape_group(self, name):
+    def _scrape_group(self, name):
         num_pages = self._config.value("groups.scrape_num_pages")
         articles = []
         for i in range(1, num_pages + 1):
-            page_html = await self._page_downloader.mydealz_group(name, i)
+            page_html = self._page_downloader.mydealz_group(name, i)
             page_articles = mydealz_html_scraper.MydealzHtmlScraper(page_html).get_articles()
             articles.extend(page_articles)
         return articles

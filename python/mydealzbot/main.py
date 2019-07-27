@@ -8,7 +8,7 @@ import telegram_bot
 import mydealz_thread_db
 import mydealz_main
 
-async def main():
+def main():
     start = time.time()
     logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
@@ -17,8 +17,8 @@ async def main():
         if config.value("use_db") else None
 
     scrape_main = mydealz_main.MydealzScraperMain(config)
-    articles_index = await scrape_main.scrape_index()
-    group_articles = await scrape_main.scrape_groups()
+    articles_index = scrape_main.scrape_index()
+    group_articles = scrape_main.scrape_groups()
 
     filter_main = mydealz_main.MydealzFilterMain(config, thread_db)
     filtered_index = filter_main.filter_index_articles(articles_index)
@@ -40,4 +40,4 @@ async def main():
     print(f"Took {time.time() - start} seconds")
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
