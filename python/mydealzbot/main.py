@@ -1,6 +1,7 @@
 import logging
 import sys
 import asyncio
+import time
 
 import mydealz_config
 import telegram_bot
@@ -8,6 +9,7 @@ import mydealz_thread_db
 import mydealz_main
 
 async def main():
+    start = time.time()
     logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
     config = mydealz_config.Config("data/mydealz_conf.json")
@@ -34,6 +36,8 @@ async def main():
             sent_articles.extend(g.articles)
         id_set = set([a.id for a in sent_articles])
         thread_db.insert_articles(id_set)
+
+    print(f"Took {time.time() - start} seconds")
 
 if __name__ == "__main__":
     asyncio.run(main())
