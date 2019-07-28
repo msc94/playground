@@ -43,7 +43,7 @@ class MydealzHtmlScraper(object):
             article.title = article.url = "?"
 
         temp = self._get_if_unique(temp_elements, "?")
-        article.temp = int(temp[:-1]) # Remove °
+        article.temp = 0 if temp == "?" else int(temp[:-1]) # Remove °
 
         article.state = ArticleState.INACTIVE if len(inactive_elements) == 1 else ArticleState.ACTIVE
 
