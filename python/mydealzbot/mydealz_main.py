@@ -94,7 +94,7 @@ def _scrape_group_multiprocessing(name):
     num_pages = 5
     articles = []
     for i in range(1, num_pages + 1):
-        page_html = page_downloader._fetch(url)
+        page_html = page_downloader._fetch(f"https://www.mydealz.de/gruppe/{name}?page={i}")
         page_articles = mydealz_html_scraper.MydealzHtmlScraper(page_html).get_articles()
         articles.extend(page_articles)
     return articles
@@ -108,8 +108,9 @@ class MydealzScraperMain(object):
         articles = []
         num_pages = self._config.value("index_page.scrap_num_pages")
         logging.info(f"Scraping first {num_pages} of mydealz")
+        page_downloader = mydealz_page_downloader.MydealzPageDownloader()
         for i in range(1, num_pages + 1):
-            page_html = self._page_downloader.mydealz_index(i)
+            page_html = page_downloader.mydealz_index(i)
             page_articles = mydealz_html_scraper.MydealzHtmlScraper(page_html).get_articles()
             articles.extend(page_articles)
         return articles
@@ -117,7 +118,7 @@ class MydealzScraperMain(object):
     def scrape_groups(self):
         group_futures = []
         for group in self._config.value("groups.names"):
-            future = executor.submit(_scrape_page_multiprocessing, group)
+            future = self._executor.submit(_scrape_group_multiprocessing, group)
             group_futures.append(future)
             print(group_futures)
 
