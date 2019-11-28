@@ -70,7 +70,7 @@ template<
 	template<class...> class T
 >
 void test() {
-	const int count = 10'000'000;
+	const int count = 100'000'000;
 	T<TestClass> container;
 	RandomBool random_bool;
 
