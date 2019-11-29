@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
-using Microsoft.Graph;
 using NLog;
 
 namespace onedrive
@@ -10,46 +10,35 @@ namespace onedrive
     {
         private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-        private GraphServiceClient _graphServiceClient = null;
-        private List<OnedriveItem> _children = new List<OnedriveItem>();
-        private string _id = "";
-        private bool _isFolder = false;
-        private string _name = "";
+        public string Id { get; } = "";
+        public bool IsDirectory { get; } = false;
+        public string Name { get; } = "";
+        public string PathFromRoot { get; } = "";
+        public DateTimeOffset? LastModifiedDateTime { get; } = null;
 
-        public OnedriveItem(GraphServiceClient graphServiceClient) {
-            _graphServiceClient = graphServiceClient;
+        public OnedriveItem(string id, bool isDirectory, string name, string pathFromRoot, DateTimeOffset? lastModifiedDateTime)
+        {
+            Id = id;
+            IsDirectory = isDirectory;
+            Name = name;
+            PathFromRoot = pathFromRoot;
+            LastModifiedDateTime = lastModifiedDateTime;
         }
+        
+        public override string ToString()
+        {
+            var type = "";
 
-        public async Task PopulateRoot() {
-            var root = await _graphServiceClient.Me.Drive.Root.Request().GetAsync();
-            PopulateData(root);
-        }
-
-        public void PopulateData(DriveItem item) {
-            _id = item.Id;
-            _isFolder = (item.Folder != null);
-            _name = item.Name;
-        }
-
-        public async Task PopulateChildren() {
-            if (string.IsNullOrEmpty(_id)) {
-                throw new ArgumentException($"{nameof(_id)} not set.");
+            if (IsDirectory)
+            {
+                type = "d";
+            }
+            else
+            {
+                type = "f";
             }
 
-            if (!_isFolder) {
-                _logger.Debug("{0} is no folder", _name);
-                return;
-            }
-
-            _logger.Debug("Populating {0}", _name);
-
-            var children = await _graphServiceClient.Me.Drive.Items[_id].Children.Request().GetAsync();
-            foreach (var child in children) {
-                var onedriveChild = new OnedriveItem(_graphServiceClient);
-                onedriveChild.PopulateData(child);
-                await onedriveChild.PopulateChildren();
-                _children.Add(onedriveChild);
-            }
+            return $"OnedriveItem: {Id} {type} {PathFromRoot}";
         }
     }
 }

@@ -15,7 +15,7 @@ namespace onedrive
             var config = new LoggingConfiguration();
             var consoleTarget = new ColoredConsoleTarget("target")
             {
-                Layout = @"${date:format=HH\:mm\:ss} ${level} ${message} ${exception}"
+                Layout = @"${date:format=HH\:mm\:ss} ${level} ${callsite} - ${message} ${exception}"
             };
             config.AddTarget(consoleTarget);
             config.AddRuleForAllLevels(consoleTarget);
@@ -34,17 +34,12 @@ namespace onedrive
                 .ExecuteAsync();
 
             var authenticationProvider = new InteractiveAuthenticationProvider(publicClientApplication);
-            GraphServiceClient graphServiceClient = new GraphServiceClient(authenticationProvider);
+            var graphServiceClient = new GraphServiceClient(authenticationProvider);
+            var apiClient = new OnedriveApiClient(graphServiceClient);
 
-            Console.WriteLine($"Hello!!!!!!!!!!");
-            var root_ = await graphServiceClient.Me.Drive.Root.Request().GetAsync();
-            Console.WriteLine($"Hello! {root_.Id}");
-            var root = new OnedriveItem(graphServiceClient);
-
-            await root.PopulateRoot();
-            await root.PopulateChildren();
-
-            int breakhere = 3;
+            var root = await apiClient.GetOnedriveRoot();
+            var downloader = new OnedriveDownloader(apiClient);
+            await downloader.DownloadItemRecursive(root, "/home/marcel/Onedrive");
         }
     }
 }
