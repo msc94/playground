@@ -12,7 +12,7 @@ void CPU::setMemory(Memory *memory)
 void CPU::initializeState()
 {
     memset(&_cpuState, 0, sizeof(CpuState));
-    _opcodeTable = initializeOpcodeTable();
+    // _opcodeTable = initializeOpcodeTable();
 }
 
 void CPU::step()

@@ -5,16 +5,16 @@
 #include "memory.hpp"
 #include "cpu.hpp"
 
-class GB
+class Playstation
 {
 private:
     Memory _memory;
     CPU _cpu;
 
 public:
-    GB() = default;
+    Playstation() = default;
 
-    void initializeGb();
+    void initialize();
     void intializeBios(const std::string &path);
     void run();
 };

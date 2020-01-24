@@ -1,26 +1,26 @@
-#include "gb.hpp"
+#include "playstation.hpp"
 
-#include <spdlog/spdlog.h>
+// #include <spdlog/spdlog.h>
 
 #include "libutils/file.hpp"
 
-void GB::initializeGb()
+void Playstation::initialize()
 {
     _cpu.setMemory(&_memory);
     _cpu.initializeState();
 }
 
-void GB::intializeBios(const std::string &path)
+void Playstation::intializeBios(const std::string &path)
 {
     auto biosFile = File(path);
     auto biosData = biosFile.readAll();
 
-    spdlog::info("Loaded bios file has {} bytes", biosData.size());
+    printf("Loaded bios file has %d bytes", biosData.size());
 
     _memory.setBios(biosData);
 }
 
-void GB::run()
+void Playstation::run()
 {
     while (true) {
         _cpu.step();
