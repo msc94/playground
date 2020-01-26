@@ -20,5 +20,6 @@ public:
 
     void initializeState();
     void decodeAndExecute(Opcode opcode);
+    void decodeAndExecuteCop0(Opcode opcode);
     void step();
 };

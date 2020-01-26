@@ -34,6 +34,9 @@ uint32_t Memory::u32(uint32_t address) {
     case MemorySegment::HW_REGISTERS:
         spdlog::warn("Ignoring read from memory segment hw registers.");
         return 0;
+    case MemorySegment::CACHE_CONTROL:
+        spdlog::warn("Ignoring read from memory segment cache control.");
+        return 0;
     default:
         throw NotImplementedError();
     }
@@ -59,6 +62,9 @@ void Memory::u32Write(uint32_t address, uint32_t value) {
     case MemorySegment::HW_REGISTERS:
         spdlog::warn("Ignoring write to memory segment hw registers.");
         return;
+    case MemorySegment::CACHE_CONTROL:
+        spdlog::warn("Ignoring write to memory segment cache control.");
+        return;
     default:
         throw NotImplementedError();
     }
@@ -74,6 +80,9 @@ constexpr uint32_t HW_REGISTERS_SIZE = 8 * 1024;
 constexpr uint32_t HW_REGISTERS_KUSEG = 0x1f801000;
 constexpr uint32_t HW_REGISTERS_KSEG0 = 0x9f801000;
 constexpr uint32_t HW_REGISTERS_KSEG1 = 0xbf801000;
+
+constexpr uint32_t CACHE_CONTROL_SIZE = 512;
+constexpr uint32_t CACHE_CONTROL_KSEG2 = 0xfffe0000;
 
 std::optional<SegmentAndOffset> Memory::getSegmentForAddress(uint32_t address) {
     if (addressInRange(address, BIOS_KUSEG, BIOS_SIZE)) {
@@ -94,6 +103,10 @@ std::optional<SegmentAndOffset> Memory::getSegmentForAddress(uint32_t address) {
     }
     if (addressInRange(address, HW_REGISTERS_KSEG1, HW_REGISTERS_SIZE)) {
         return SegmentAndOffset{MemorySegment::HW_REGISTERS, address - HW_REGISTERS_KSEG1};
+    }
+
+    if (addressInRange(address, CACHE_CONTROL_KSEG2, CACHE_CONTROL_SIZE)) {
+        return SegmentAndOffset{MemorySegment::CACHE_CONTROL, address - CACHE_CONTROL_KSEG2};
     }
 
     return {};

@@ -15,7 +15,8 @@ enum class MemorySegment {
     EXPANSION_REGION,
     SCRATCHPAD,
     HW_REGISTERS,
-    BIOS
+    BIOS,
+    CACHE_CONTROL
 };
 
 struct SegmentAndOffset {

@@ -11,6 +11,10 @@ add_library (libps
     cpu.cpp
     opcode.hpp
     opcode.cpp
+    opcode_cpu.cpp
+    opcode_cpu.hpp
+    opcode_cop0.cpp
+    opcode_cop0.hpp
     bios.cpp
     bios.hpp
     memory_region.hpp

@@ -6,6 +6,7 @@ add_library (libutils
     exception.hpp
     platform.hpp
     platform.cpp
+    math.hpp
 )
 
 target_include_directories (libutils PUBLIC ../)

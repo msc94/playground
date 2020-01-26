@@ -2,6 +2,8 @@
 #include "libutils/memory_utils.hpp"
 #include "libutils/platform.hpp"
 #include "opcode.hpp"
+#include "opcode_cop0.hpp"
+#include "opcode_cpu.hpp"
 
 #include <algorithm>
 #include <cstring>
@@ -22,46 +24,86 @@ void CPU::decodeAndExecute(Opcode opcode) {
 
     switch (instruction) {
     case 0b001111:
-        OpcodeImplementation::lui(opcode, &_cpuState);
+        OpcodeImplementationCpu::lui(opcode, &_cpuState);
         return;
 
     case 0b001101:
-        OpcodeImplementation::ori(opcode, &_cpuState);
+        OpcodeImplementationCpu::ori(opcode, &_cpuState);
         return;
 
-    case 0b101011:
-        OpcodeImplementation::sw(opcode, &_cpuState, _memory);
+    case 0b101011: {
+        auto cacheIsolation = (_cpuState.getRegisterCop0(Cop0Registers::SR) & Cop0Registers::IsolateCache) > 0;
+        if (cacheIsolation) {
+            spdlog::warn("Ignoring sw instruction because IsolateCache flag is set in Cop0 SR.");
+            return;
+        }
+
+        OpcodeImplementationCpu::sw(opcode, &_cpuState, _memory);
+        return;
+    }
+
+    case 0b100011:
+        OpcodeImplementationCpu::lw(opcode, &_cpuState, _memory);
+        return;
+
+    case 0b001000:
+        OpcodeImplementationCpu::addi(opcode, &_cpuState);
         return;
 
     case 0b001001:
-        OpcodeImplementation::addiu(opcode, &_cpuState);
+        OpcodeImplementationCpu::addiu(opcode, &_cpuState);
         return;
 
     case 0b000010:
-        OpcodeImplementation::j(opcode, &_cpuState);
+        OpcodeImplementationCpu::j(opcode, &_cpuState);
+        return;
+
+    case 0b000101:
+        OpcodeImplementationCpu::bne(opcode, &_cpuState);
         return;
 
     case 0b000000: {
         auto subfunction = opcode.subfunction();
+        spdlog::trace("[decode] subfunction {0:#04x} ({0:#08b})", subfunction);
         switch (subfunction) {
         case 0b000000:
-            OpcodeImplementation::sll(opcode, &_cpuState);
+            OpcodeImplementationCpu::sll(opcode, &_cpuState);
+            return;
+        case 0b100101:
+            OpcodeImplementationCpu::or_(opcode, &_cpuState);
             return;
         }
     }
 
+    case 0b010000:
+        decodeAndExecuteCop0(opcode);
+        return;
+
     default: {
         auto rawOpcode = opcode.raw();
-        THROW(std::runtime_error,
-              fmt::format("Unhandled opcode {0:#x} ({0:#b})", rawOpcode));
+        spdlog::error("Unhandled opcode {0:#010x} ({0:#034b}) at address {1:#010x}", rawOpcode, opcode.address());
+        throw OpcodeNotImplementedError();
     }
 
     } // switch (instruction)
 }
 
-std::vector<uint32_t> BREAKPOINTS = {
-    0xbfc00158,
-};
+void CPU::decodeAndExecuteCop0(Opcode opcode) {
+    auto cop_opcode = opcode.cop_opcode();
+    switch (cop_opcode) {
+
+    case 0b00100:
+        OpcodeImplementationCop0::mtc0(opcode, &_cpuState);
+        return;
+
+    default:
+        spdlog::error("Unhandled cop0 opcode {0:#04x} ({0:#07b}) at address {1:#010x}", cop_opcode, opcode.address());
+        throw OpcodeNotImplementedError();
+
+    } // switch (cop_opcode)
+}
+
+std::vector<uint32_t> BREAKPOINTS = {};
 
 void CPU::step() {
     // Always execute the last opcode we have seen to handle Branch Delay Slots

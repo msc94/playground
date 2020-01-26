@@ -11,3 +11,8 @@ class NotImplementedError : public std::logic_error {
 public:
     NotImplementedError() : std::logic_error("Function not yet implemented.") {}
 };
+
+class OpcodeNotImplementedError : public std::runtime_error {
+public:
+    OpcodeNotImplementedError() : std::runtime_error("Opcode not implemented.") {}
+};

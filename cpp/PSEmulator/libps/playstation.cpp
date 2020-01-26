@@ -27,6 +27,9 @@ void Playstation::intializeBios(const std::string &path)
 
 void Playstation::run()
 {
+    auto ri = RegisterIndex(0x0);
+    spdlog::debug("{}", ri);
+
     while (true) {
         _cpu.step();
     }
