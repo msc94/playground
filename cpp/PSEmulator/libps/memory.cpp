@@ -17,6 +17,8 @@ void Memory::setBios(std::unique_ptr<MemoryRegion> bios) {
 }
 
 uint32_t Memory::u32(uint32_t address) {
+    spdlog::trace("[mem] Reading from {:#010x}", address);
+
     if (address % 4 != 0) {
         spdlog::warn("Unaligned memory access.");
     }
@@ -39,6 +41,8 @@ uint32_t Memory::u32(uint32_t address) {
 
 // 0x1f801010
 void Memory::u32Write(uint32_t address, uint32_t value) {
+    spdlog::trace("[mem] Writing {:#010x} to {:#010x}", value, address);
+
     if (address % 4 != 0) {
         spdlog::warn("Unaligned memory access.");
     }
@@ -62,8 +66,8 @@ void Memory::u32Write(uint32_t address, uint32_t value) {
 
 // Memory regions
 constexpr uint32_t BIOS_SIZE = 512 * 1024;
-constexpr uint32_t BIOS_KUSEG = 0xbfc00000;
-constexpr uint32_t BIOS_KSEG0 = 0xbfc00000;
+constexpr uint32_t BIOS_KUSEG = 0x1fc00000;
+constexpr uint32_t BIOS_KSEG0 = 0x9fc00000;
 constexpr uint32_t BIOS_KSEG1 = 0xbfc00000;
 
 constexpr uint32_t HW_REGISTERS_SIZE = 8 * 1024;

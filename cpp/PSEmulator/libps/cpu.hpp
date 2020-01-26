@@ -11,7 +11,7 @@ class CPU {
 private:
     CpuState _cpuState = {};
     Memory *_memory = nullptr;
-    std::vector<std::function<void(CpuState *)>> _opcodeTable;
+    Opcode _nextOpcode = Opcode::NOP();
 
 public:
     CPU() = default;

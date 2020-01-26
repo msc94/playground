@@ -4,6 +4,8 @@ add_library (libutils
     file.hpp
     file.cpp
     exception.hpp
+    platform.hpp
+    platform.cpp
 )
 
 target_include_directories (libutils PUBLIC ../)
