@@ -1,17 +1,17 @@
 #pragma once
 
-#include <vector>
 #include <functional>
+#include <vector>
 
 #include "cpustate.hpp"
 #include "memory.hpp"
+#include "opcode.hpp"
 
-class CPU
-{
+class CPU {
 private:
     CpuState _cpuState = {};
     Memory *_memory = nullptr;
-    std::vector<std::function<void(CpuState*)>> _opcodeTable;
+    std::vector<std::function<void(CpuState *)>> _opcodeTable;
 
 public:
     CPU() = default;
@@ -19,5 +19,6 @@ public:
     void setMemory(Memory *memory);
 
     void initializeState();
+    void decodeAndExecute(Opcode opcode);
     void step();
 };

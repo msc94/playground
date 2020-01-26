@@ -11,5 +11,6 @@ private:
 public:
     File(std::string path);
     
+    bool exists();
     std::vector<uint8_t> readAll();
 };

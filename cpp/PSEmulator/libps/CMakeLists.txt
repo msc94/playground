@@ -5,10 +5,15 @@ add_library (libps
     playstation.cpp
     memory.hpp
     memory.cpp
+    cpustate.hpp
+    cpustate.cpp
     cpu.hpp
     cpu.cpp
-    opcodes.hpp
-    opcodes.cpp
+    opcode.hpp
+    opcode.cpp
+    bios.cpp
+    bios.hpp
+    memory_region.hpp
 )
 
 target_link_libraries (libps LINK_PUBLIC libutils)

@@ -2,24 +2,18 @@
 
 #include <cstdint>
 
-struct HiLo
+class CpuState
 {
-    uint8_t hi;
-    uint8_t lo;
-};
+    uint32_t _pc;
+    uint32_t _registers[32];
 
-union Register
-{
-    uint16_t full;
-    HiLo hilo;
-};
+public:
+    void initialize();
 
-struct CpuState
-{
-    Register AF;
-    Register BC;
-    Register DE;
-    Register HL;
-    Register SP;
-    Register PC;
+    void incrementProgramCounter();
+    void setProgramCounter(uint32_t value);
+    uint32_t getProgramCounter();
+
+    void setRegister(uint8_t index, uint32_t value);
+    uint32_t getRegister(uint8_t index);
 };

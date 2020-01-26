@@ -1,16 +1,16 @@
-#include <iostream>
-// #include <spdlog/spdlog.h>
-
 #include "libps/playstation.hpp"
 
-int main(int argc, char** argv)
-{
-    printf("Hello playstation!\n");
+#include <exception>
+#include <iostream>
+#include <spdlog/spdlog.h>
 
-    // spdlog::set_level(spdlog::level::debug);
+int main(int, char **)
+{
+    spdlog::set_level(spdlog::level::trace);
+    spdlog::debug("Hello, Playstation!");
 
     auto ps = Playstation();
     ps.initialize();
-    ps.intializeBios("/files/SCPH-1001.bin");
-    // ps.run();
+    ps.intializeBios("D:/Programmierung/playground/cpp/PSEmulator/files/SCPH-1001.bin");
+    ps.run();
 }

@@ -1,23 +1,40 @@
 #pragma once
 
-#include <vector>
 #include <cstdint>
+#include <memory>
+#include <optional>
+#include <vector>
+
+#include "bios.hpp"
+#include "memory_region.hpp"
 
 #include "libutils/data.hpp"
 
-// Allocate only Size for the BIOS as a first step
-constexpr size_t MEMORY_SIZE = 0x00003FFF + 1;
+enum class MemorySegment {
+    MAIN_RAM,
+    EXPANSION_REGION,
+    SCRATCHPAD,
+    HW_REGISTERS,
+    BIOS
+};
 
-class Memory
-{
+struct SegmentAndOffset {
+    MemorySegment region;
+    uint32_t offset;
+};
+
+class Memory {
 private:
-    ByteBuffer _memory = std::vector<uint8_t>(MEMORY_SIZE);
+    std::unique_ptr<MemoryRegion> _bios;
 
 public:
     Memory() = default;
 
-    void setBios(const ByteBuffer &data);
+    void setBios(std::unique_ptr<MemoryRegion> bios);
 
     // Memory access
-    uint8_t uint8(uint16_t address);
+    uint32_t u32(uint32_t address);
+    void u32Write(uint32_t address, uint32_t value);
+
+    std::optional<SegmentAndOffset> getSegmentForAddress(uint32_t address);
 };
