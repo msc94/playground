@@ -18,6 +18,7 @@ add_library (libps
     bios.cpp
     bios.hpp
     memory_region.hpp
+    loaddelayslot.hpp
 )
 
 target_link_libraries (libps LINK_PUBLIC libutils)

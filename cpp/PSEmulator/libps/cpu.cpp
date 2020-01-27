@@ -18,6 +18,10 @@ void CPU::initializeState() {
     _nextOpcode = Opcode::NOP();
 }
 
+const CpuState *CPU::getCpuState() const {
+    return &_cpuState;
+}
+
 void CPU::decodeAndExecute(Opcode opcode) {
     auto instruction = opcode.instruction();
     spdlog::trace("[decode] instruction {0:#04x} ({0:#08b})", instruction);
@@ -43,7 +47,7 @@ void CPU::decodeAndExecute(Opcode opcode) {
     }
 
     case 0b100011:
-        OpcodeImplementationCpu::lw(opcode, &_cpuState, _memory);
+        _loadDelaySlot[1] = OpcodeImplementationCpu::lw(opcode, &_cpuState, _memory);
         return;
 
     case 0b001000:
@@ -125,4 +129,21 @@ void CPU::step() {
 
     spdlog::trace("[decode] raw {0:#010x} ({0:#034b})", opcode.raw());
     decodeAndExecute(opcode);
+
+    moveAndApplyLoadDelaySlots();
+}
+
+// TODO: Load delay slot invalidation
+void CPU::moveAndApplyLoadDelaySlots() {
+    auto first = _loadDelaySlot[0];
+    if (first) {
+        _cpuState.setRegister(first->index, first->value);
+        _loadDelaySlot[0] = {};
+    }
+
+    auto second = _loadDelaySlot[1];
+    if (second) {
+        first = second;
+        _loadDelaySlot[1] = {};
+    }
 }

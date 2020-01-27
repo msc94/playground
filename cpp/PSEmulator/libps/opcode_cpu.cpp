@@ -24,7 +24,7 @@ void OpcodeImplementationCpu::ori(Opcode opcode, CpuState *cpuState) {
     cpuState->setRegister(rt, value);
 }
 
-void OpcodeImplementationCpu::lw(Opcode opcode, CpuState *cpuState, Memory *memory) {
+LoadDelaySlot OpcodeImplementationCpu::lw(Opcode opcode, CpuState *cpuState, Memory *memory) {
     auto rt = opcode.rt();
     auto rs = opcode.rs();
     auto imm = opcode.imm16();
@@ -33,7 +33,7 @@ void OpcodeImplementationCpu::lw(Opcode opcode, CpuState *cpuState, Memory *memo
 
     uint32_t address = cpuState->getRegister(rs) + imm;
     uint32_t value = memory->u32(address);
-    cpuState->setRegister(rt, value);
+    return LoadDelaySlot {rt, value};
 }
 
 void OpcodeImplementationCpu::sw(Opcode opcode, CpuState *cpuState, Memory *memory) {

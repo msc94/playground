@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.0)
+cmake_minimum_required (VERSION 3.16)
 project (PSEmulator)
 
 # find_package (fmt CONFIG REQUIRED)
@@ -31,4 +31,4 @@ add_compile_options (/MP)
 add_subdirectory (app)
 add_subdirectory (libps)
 add_subdirectory (libutils)
-# add_subdirectory (test)
+add_subdirectory (test)

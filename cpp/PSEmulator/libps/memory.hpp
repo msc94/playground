@@ -34,8 +34,8 @@ public:
     void setBios(std::unique_ptr<MemoryRegion> bios);
 
     // Memory access
-    uint32_t u32(uint32_t address);
-    void u32Write(uint32_t address, uint32_t value);
+    virtual uint32_t u32(uint32_t address);
+    virtual void u32Write(uint32_t address, uint32_t value);
 
     std::optional<SegmentAndOffset> getSegmentForAddress(uint32_t address);
 };

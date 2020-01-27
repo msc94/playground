@@ -8,6 +8,7 @@ std::ostream &operator<<(std::ostream &os, const RegisterIndex &ri) {
 }
 
 void CpuState::initialize() {
+    // Start at BIOS segment
     _pc = 0xBFC00000;
 
     std::fill(std::begin(_registers) + 1, std::end(_registers), 0xDEADBEEF);
@@ -25,7 +26,7 @@ void CpuState::setProgramCounter(uint32_t value) {
     _pc = value;
 }
 
-uint32_t CpuState::getProgramCounter() {
+uint32_t CpuState::getProgramCounter() const {
     return _pc;
 }
 
@@ -39,7 +40,7 @@ void CpuState::setRegister(RegisterIndex index, uint32_t value) {
     _registers[index.index()] = value;
 }
 
-uint32_t CpuState::getRegister(RegisterIndex index) {
+uint32_t CpuState::getRegister(RegisterIndex index) const {
     auto value = _registers[index.index()];
     spdlog::trace("[reg] read ${} = {:#010x}", index, value);
     return value;
@@ -50,7 +51,7 @@ void CpuState::setRegisterCop0(RegisterIndex index, uint32_t value) {
     _registersCop0[index.index()] = value;
 }
 
-uint32_t CpuState::getRegisterCop0(RegisterIndex index) {
+uint32_t CpuState::getRegisterCop0(RegisterIndex index) const {
     auto value = _registersCop0[index.index()];
     spdlog::trace("[reg] read cop0_${} = {:#010x}", index, value);
     return value;

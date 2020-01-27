@@ -33,11 +33,11 @@ public:
 
     void incrementProgramCounter();
     void setProgramCounter(uint32_t value);
-    uint32_t getProgramCounter();
+    uint32_t getProgramCounter() const;
 
     void setRegister(RegisterIndex index, uint32_t value);
-    uint32_t getRegister(RegisterIndex index);
+    uint32_t getRegister(RegisterIndex index) const;
 
     void setRegisterCop0(RegisterIndex index, uint32_t value);
-    uint32_t getRegisterCop0(RegisterIndex index);
+    uint32_t getRegisterCop0(RegisterIndex index) const ;
 };
