@@ -1,5 +1,6 @@
 #include <vector>
 #include <string>
+#include <algorithm>
 
 #include <gtest/gtest.h>
 
@@ -16,7 +17,7 @@ public:
         // TODO: Is there a nicer way to do this?
         std::sort(nums.begin(), nums.end(), [](int a, int b) {
             return std::to_string(a) > std::to_string(b);
-        });
+            });
 
         std::string result = "";
         for (int i : nums) {
